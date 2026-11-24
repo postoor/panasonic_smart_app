@@ -54,6 +54,9 @@ See [支援的裝置 / Supported devices](https://github.com/osk2/panasonic_smar
 |                 | sensor        | Device status sensor           |
 |                 | sensor        | Washing mode sensor            |
 |                 | sensor        | Washing cycle sensor           |
+| Clothes Dryer   | sensor        | Countdown sensor               |
+|                 | sensor        | Device status sensor           |
+|                 | sensor        | Drying cycle sensor            |
 | Purifier        | switch        | Power switch                   |
 |                 | select        | Fan level\*                    |
 |                 | switch        | nanoeX switch\*                |

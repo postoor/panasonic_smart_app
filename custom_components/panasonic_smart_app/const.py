@@ -19,6 +19,7 @@ DEVICE_TYPE_AC = 1
 DEVICE_TYPE_REFRIGERATOR = 2
 DEVICE_TYPE_WASHING_MACHINE = 3
 DEVICE_TYPE_DEHUMIDIFIER = 4
+DEVICE_TYPE_CLOTHES_DRYER = 6
 DEVICE_TYPE_PURIFIER = 8
 DEVICE_TYPE_ERV = 14
 DEVICE_TYPE_SWITCH = 17
@@ -100,6 +101,12 @@ DEVICE_STATUS_CODES = {
         "0x55",  # Washing machine current cycle
         "0x61",  # Washing machine dryer delay
         "0x64",  # Washing machine cycle
+    ],
+    DEVICE_TYPE_CLOTHES_DRYER: [
+        "0x05",  # Clothes dryer remaining drying time
+        "0x15",  # Clothes dryer remaining time to trigger timer
+        "0x50",  # Clothes dryer status
+        "0x55",  # Clothes dryer current cycle
     ],
     DEVICE_TYPE_PURIFIER: [
         "0x00",  # Purifier power status
@@ -189,6 +196,7 @@ ICON_ARROW_LEFT_RIGHT = "mdi:arrow-left-right-bold"
 ICON_CLOCK = "mdi:clock"
 ICON_INFO = "mdi:information"
 ICON_WASHING_MACHINE = "mdi:washing-machine"
+ICON_CLOTHES_DRYER = "mdi:tumble-dryer"
 ICON_LIST = "mdi:order-bool-descending-variant"
 ICON_PURIFIER = "mdi:air-purifier"
 ICON_BUZZER = "mdi:volume-high"
@@ -229,6 +237,9 @@ LABEL_WASHING_MACHINE_COUNTDOWN = "剩餘洗衣時間"
 LABEL_WASHING_MACHINE_STATUS = "運轉狀態"
 LABEL_WASHING_MACHINE_CYCLE = "目前行程"
 LABEL_WASHING_MACHINE_MODE = "目前模式"
+LABEL_CLOTHES_DRYER_COUNTDOWN = "剩餘乾衣時間"
+LABEL_CLOTHES_DRYER_STATUS = "運轉狀態"
+LABEL_CLOTHES_DRYER_CYCLE = "目前行程"
 LABEL_REFRIGERATOR_FREEZER_TEMPERATURE_DISPLAY = "冷凍溫度"
 LABEL_REFRIGERATOR_REFRIGERATOR_TEMPERATURE_DISPLAY = "冷藏溫度"
 LABEL_REFRIGERATOR_PARTIAL_FREEZING_TEMPERATURE_DISPLAY = "微凍結溫度"
