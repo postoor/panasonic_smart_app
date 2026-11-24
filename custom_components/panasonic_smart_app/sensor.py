@@ -24,6 +24,7 @@ from .const import (
     DEVICE_TYPE_AC,
     DEVICE_TYPE_REFRIGERATOR,
     DEVICE_TYPE_WASHING_MACHINE,
+    DEVICE_TYPE_CLOTHES_DRYER,
     DEVICE_TYPE_PURIFIER,
     DATA_CLIENT,
     DATA_COORDINATOR,
@@ -40,6 +41,9 @@ from .const import (
     LABEL_WASHING_MACHINE_STATUS,
     LABEL_WASHING_MACHINE_CYCLE,
     LABEL_WASHING_MACHINE_MODE,
+    LABEL_CLOTHES_DRYER_COUNTDOWN,
+    LABEL_CLOTHES_DRYER_STATUS,
+    LABEL_CLOTHES_DRYER_CYCLE,
     ICON_PM25,
     ICON_THERMOMETER,
     ICON_HUMIDITY,
@@ -48,6 +52,7 @@ from .const import (
     ICON_CLOCK,
     ICON_INFO,
     ICON_WASHING_MACHINE,
+    ICON_CLOTHES_DRYER,
     ICON_LIST,
     ICON_CO2_FOOTPRINT,
     ICON_REFRIGERATOR_WINTER_MODE,
@@ -226,6 +231,35 @@ async def async_setup_entry(hass, entry, async_add_entities) -> bool:
             if "0x55" in device_status:
                 sensors.append(
                     PanasonicWashingCycleSensor(
+                        coordinator,
+                        index,
+                        client,
+                        device,
+                    )
+                )
+
+        if device_type == DEVICE_TYPE_CLOTHES_DRYER:
+            if "0x05" in device_status:
+                sensors.append(
+                    PanasonicDryerCountdownSensor(
+                        coordinator,
+                        index,
+                        client,
+                        device,
+                    )
+                )
+            if "0x50" in device_status:
+                sensors.append(
+                    PanasonicDryerStatusSensor(
+                        coordinator,
+                        index,
+                        client,
+                        device,
+                    )
+                )
+            if "0x55" in device_status:
+                sensors.append(
+                    PanasonicDryerCycleSensor(
                         coordinator,
                         index,
                         client,
@@ -634,6 +668,116 @@ class PanasonicWashingCycleSensor(PanasonicBaseEntity, SensorEntity):
         _current_cycle = list(
             filter(lambda m: m[1] == int(cycle), raw_mode_list)
         )[0][0]
+        _LOGGER.debug(f"[{self.label}] state: {_current_cycle}")
+        return _current_cycle
+
+    @property
+    def state_class(self) -> str:
+        return STATE_MEASUREMENT
+
+
+class PanasonicDryerCountdownSensor(PanasonicBaseEntity, SensorEntity):
+    """ Panasonic clothes dryer drying cycle countdown sensor """
+
+    @property
+    def label(self):
+        return f"{self.nickname} {LABEL_CLOTHES_DRYER_COUNTDOWN}"
+
+    @property
+    def icon(self) -> str:
+        return ICON_CLOCK
+
+    @property
+    def state(self) -> int:
+        status = self.coordinator.data[self.index]["status"]
+        _current_countdown = status.get("0x05", None)
+        _LOGGER.debug(f"[{self.label}] state: {_current_countdown}")
+        return _current_countdown if _current_countdown else STATE_UNAVAILABLE
+
+    @property
+    def state_class(self) -> str:
+        return STATE_MEASUREMENT
+
+    @property
+    def unit_of_measurement(self) -> str:
+        return UnitOfTime.MINUTES
+
+
+class PanasonicDryerStatusSensor(PanasonicBaseEntity, SensorEntity):
+    """ Panasonic clothes dryer status sensor """
+
+    @property
+    def label(self):
+        return f"{self.nickname} {LABEL_CLOTHES_DRYER_STATUS}"
+
+    @property
+    def icon(self) -> str:
+        return ICON_INFO
+
+    @property
+    def state(self) -> int:
+        status = self.coordinator.data[self.index]["status"]
+        dryer_status = status.get("0x50")
+
+        if not dryer_status:
+            return STATE_UNAVAILABLE
+
+        raw_mode_list = list(
+            filter(lambda c: c["CommandType"] == "0x50", self.commands)
+        )[0]["Parameters"]
+
+        if not raw_mode_list:
+            return STATE_UNAVAILABLE
+
+        _raw_current_status = list(
+            filter(lambda m: m[1] == int(dryer_status), raw_mode_list)
+        )
+
+        if len(_raw_current_status) > 0:
+            _current_status = _raw_current_status[0][0]
+        else:
+            _current_status = STATE_UNAVAILABLE
+
+        _LOGGER.debug(f"[{self.label}] state: {_current_status}")
+        return _current_status
+
+    @property
+    def state_class(self) -> str:
+        return STATE_MEASUREMENT
+
+
+class PanasonicDryerCycleSensor(PanasonicBaseEntity, SensorEntity):
+    """ Panasonic clothes dryer drying cycle sensor """
+
+    @property
+    def label(self):
+        return f"{self.nickname} {LABEL_CLOTHES_DRYER_CYCLE}"
+
+    @property
+    def icon(self) -> str:
+        return ICON_CLOTHES_DRYER
+
+    @property
+    def state(self) -> int:
+        status = self.coordinator.data[self.index]["status"]
+        cycle = status.get("0x55")
+
+        if not cycle:
+            return STATE_UNAVAILABLE
+
+        raw_mode_list = list(
+            filter(lambda c: c["CommandType"] == "0x55", self.commands)
+        )[0]["Parameters"]
+
+        _raw_current_cycle = list(
+            filter(lambda m: m[1] == int(cycle), raw_mode_list)
+        )
+
+        if len(_raw_current_cycle) > 0:
+            _current_cycle = _raw_current_cycle[0][0]
+        else:
+            _current_cycle = STATE_UNAVAILABLE
+
         _LOGGER.debug(f"[{self.label}] state: {_current_cycle}")
         return _current_cycle
 
